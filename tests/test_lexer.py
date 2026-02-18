@@ -68,4 +68,5 @@ def test_lex_file_data():
         Token(TokenType.IGNORE, " ", TEST_FILE_1, 5, 14),
         Token(TokenType.UNKOWN, "-", TEST_FILE_1, 5, 15),
         Token(TokenType.IDENTIFIER, "+ABC", TEST_FILE_1, 5, 16),
+        Token(TokenType.EOF, "EOF", TEST_FILE_1, 6, 1),
     ]

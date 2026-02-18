@@ -1,17 +1,18 @@
 import sys
 import argparse
-from config import PROGRAM_NAME, PROGRAM_DESCRIPTION
-from lexer import lex_file_data
+from compiler.config import PROGRAM_NAME, PROGRAM_DESCRIPTION
+from compiler.lexer import lex_file_data
+from compiler.parser import parse_tokens
+
 
 def create_arg_parser():
-    parser = argparse.ArgumentParser(
-        prog=PROGRAM_NAME,
-        description=PROGRAM_DESCRIPTION)
+    parser = argparse.ArgumentParser(prog=PROGRAM_NAME, description=PROGRAM_DESCRIPTION)
 
-    parser.add_argument('filename')
-    parser.add_argument('-v', '--verbose', action='store_true')
-    
+    parser.add_argument("filename")
+    parser.add_argument("-v", "--verbose", action="store_true")
+
     return parser
+
 
 def open_file(filename):
     try:
@@ -26,16 +27,18 @@ def open_file(filename):
     except OSError as e:
         print(f'Error opening file "{filename}": {e}')
         sys.exit(1)
-    
-    return data 
+
+    return data
+
 
 def main():
     parser = create_arg_parser()
     args = parser.parse_args()
-    file = {"name": args.filename, 
-            "lines": open_file(args.filename).split("\n")}
+    file = {"name": args.filename, "lines": open_file(args.filename).split("\n")}
     tokens = lex_file_data(file)
-    print(tokens)
+    ast = parse_tokens(tokens)
+    print(ast)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

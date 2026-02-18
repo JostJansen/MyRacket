@@ -5,11 +5,16 @@ from dataclasses import dataclass
 
 class TokenType(Enum):
     BOOLEAN = auto()
+    EOF = auto()
     IDENTIFIER = auto()
     IGNORE = auto()
     INTEGER = auto()
+    KEYWORD = auto()
     SEPARATOR = auto()
     UNKOWN = auto()
+
+    def __str__(self):
+        return super().__str__()[10:]  # remove TokenType.
 
 
 @dataclass(frozen=True)
@@ -24,12 +29,13 @@ class Token:
 # order matters! patterns later in the list are matched later
 # important for overlapping patterns
 GRAMMAR = [
+    (TokenType.KEYWORD, "define|lambda"),
     (TokenType.BOOLEAN, "#t|#f"),
     (TokenType.INTEGER, "-?\\d+"),
-    (TokenType.SEPARATOR, "[\\(\\)]"),
+    (TokenType.SEPARATOR, "[\\(\\)\\:\\,\\[\\]]|->"),
     (
         TokenType.IDENTIFIER,
-        "[a-zA-z_\\+\\*\\/\\<\\>\\=\\?\\!][a-zA-z_0-9\\+\\-\\*\\/\\<\\>\\=\\?\\!]*",
+        "[a-zA-Z_\\+\\*/<>=\\?!][a-zA-Z_0-9\\+\\-\\*/<>=\\?!]*",
     ),
     (TokenType.IGNORE, "\\;.*$"),
     (TokenType.IGNORE, "\\s+"),
@@ -41,10 +47,18 @@ def lex_file_data(file):
     tokens = []
     line = col = 0
 
+    while line != len(file["lines"]) and len(file["lines"][line]) == 0:
+        line += 1
+
     while line != len(file["lines"]):
         (token, line, col) = lex_next_token(file, line, col)
         tokens.append(token)
 
+    tokens.append(
+        Token(
+            TokenType.EOF, "EOF", file, len(file["lines"]), len(file["lines"][-1]) + 1
+        )
+    )
     return tokens
 
 
